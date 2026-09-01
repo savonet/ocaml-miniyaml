@@ -2,7 +2,4 @@
  (name test)
  (libraries yaml)
  (deps test.yaml)
- (action
-  (run ./test.exe %{deps})
- )
 )

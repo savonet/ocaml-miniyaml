@@ -213,7 +213,8 @@ let () =
     exit 1)
 
 let () =
-  List.iter (fun f ->
-      Printf.printf "Parsing %s...\n\n%!" f;
-      Printf.printf "%s\n%!" @@ Yaml.to_string @@ Result.get_ok @@ Yaml.of_string f
-    ) (List.tl @@ Array.to_list @@ Sys.argv)
+  List.iter
+    (fun f ->
+       Printf.printf "Parsing %s...\n\n%!" f;
+       Printf.printf "%s\n%!" @@ Yaml.to_string @@ Result.get_ok @@ Yaml.of_string f
+    ) ["test.yaml"]
