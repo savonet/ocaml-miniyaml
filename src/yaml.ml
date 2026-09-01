@@ -1,10 +1,4 @@
-(** A minimal YAML reader and writer.
-
-    The supported subset is the one people hand-write in configuration files:
-    block mappings and sequences, inline flow collections ([[1, 2]] and
-    [{a: b}]), plain and quoted scalars, and comments. Block scalars ([|] and
-    [>]), anchors, aliases, tags and multi-document streams are rejected with an
-    explicit error. *)
+(* See yaml.mli for the supported subset of YAML. *)
 
 type t =
   | Null
@@ -531,7 +525,6 @@ let parse lines =
   if !pos < len then error lines.(!pos).lnum "unexpected content";
   v
 
-(** Parse a YAML document. *)
 let of_string s : (t, string) result =
   try Ok (parse (strip_document_markers (scan s)))
   with Parse_error msg -> Error msg
@@ -631,7 +624,6 @@ let rec write b indent v =
     Buffer.add_string b (render_scalar v);
     Buffer.add_char b '\n'
 
-(** Print a YAML document. *)
 let to_string yaml =
   let b = Buffer.create 256 in
   write b 0 yaml;
