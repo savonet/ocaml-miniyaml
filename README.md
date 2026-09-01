@@ -1,11 +1,24 @@
-# MiniYaml --- A simple YAML parser in pure OCaml
+# MiniYaml — A simple YAML parser in pure OCaml
 
 MiniYaml reads and writes the subset of YAML that people actually hand-write in
 configuration files: block mappings and sequences, inline flow collections, quoted
 scalars and comments.
 
-It is written in pure OCaml and has **no dependencies** — not even a lexer or parser
-generator. The whole library is a single module of about 650 lines.
+It is written in pure OCaml and has **no dependencies** — not even a lexer or parser generator. The whole library is a single module of about 650 lines.
+
+## Installation
+
+```sh
+opam install miniyaml
+```
+
+The opam package and the dune library are named `miniyaml`, the module is `Yaml`:
+
+```
+(executable
+ (name my_program)
+ (libraries miniyaml))
+```
 
 ## Usage
 
@@ -78,10 +91,7 @@ quoted on output, so `String "true"`, `String "1.5"` and `String ""` survive the
 - comments, and the `---` / `...` document markers;
 - the plain scalars `~`, `null`, `true`, `false`, `.inf`, `.nan` and decimal numbers.
 
-The following are *not* supported, and are rejected with an explicit error rather than
-misparsed: block scalars (`|` and `>`), anchors and aliases (`&`, `*`), tags (`!`),
-directives (`%`), complex mapping keys (`?`), multi-document streams, and tabulations
-used for indentation. Flow collections have to fit on a single line.
+The following are *not* supported, and are rejected with an explicit error rather than misparsed: block scalars (`|` and `>`), anchors and aliases (`&`, `*`), tags (`!`), directives (`%`), complex mapping keys (`?`), multi-document streams, and tabulations used for indentation. Flow collections have to fit on a single line.
 
 ## Building
 
