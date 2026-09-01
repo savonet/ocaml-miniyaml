@@ -529,6 +529,12 @@ let of_string s : (t, string) result =
   try Ok (parse (strip_document_markers (scan s)))
   with Parse_error msg -> Error msg
 
+let of_file f =
+  let ic = open_in_bin f in
+  let s = really_input_string ic (in_channel_length ic) in
+  close_in ic;
+  of_string s
+
 (* {1 Printing} *)
 
 let float_to_string f =

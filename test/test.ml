@@ -216,5 +216,9 @@ let () =
   List.iter
     (fun f ->
        Printf.printf "Parsing %s...\n\n%!" f;
-       Printf.printf "%s\n%!" @@ Yaml.to_string @@ Result.get_ok @@ Yaml.of_string f
+       match Yaml.of_file f with
+       | Ok v -> Printf.printf "%s\n%!" (Yaml.to_string v)
+       | Error e ->
+         Printf.printf "error: %s\n%!" e;
+         exit 1
     ) ["test.yaml"]

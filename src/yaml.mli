@@ -21,6 +21,9 @@ type t =
     which the error was detected. *)
 val of_string : string -> (t, string) result
 
+(** Parse a YAML file. *)
+val of_file : string -> (t, string) result
+
 (** Print a YAML document, using block style and two-space indentation. The
     result always ends with a newline and can be read back with {!of_string}:
     [of_string (to_string v) = Ok v] for every [v]. *)
