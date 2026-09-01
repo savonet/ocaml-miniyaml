@@ -14,4 +14,6 @@
  (description
   "MiniYaml reads and writes the subset of YAML which is commonly found in configuration files: block mappings and sequences, inline flow collections, quoted scalars and comments. It is written in pure OCaml and has no dependencies.")
  (depends
-  (ocaml (>= 4.08))))
+  (ocaml (>= 4.08))
+ )
+)
