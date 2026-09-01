@@ -1,6 +1,7 @@
 (lang dune 3.14)
 
 (name miniyaml)
+(version 0.1.0)
 (source (github savonet/ocaml-miniyaml))
 (license GPL-3.0-or-later)
 (authors "Samuel Mimram <smimram@gmail.com>")
