@@ -1,0 +1,86 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project
+
+MiniYaml is a YAML reader and writer for the subset of YAML people hand-write in
+configuration files. It is pure OCaml with **no dependencies** — not even ocamllex or
+menhir — and that is the point of the project. Do not introduce any.
+
+The whole library is the single module `src/yaml.ml` (+ `src/yaml.mli`).
+
+## Commands
+
+```sh
+dune build            # build the library and the tests
+dune runtest          # run the test suite
+dune runtest -f       # force a rerun (dune caches a successful run)
+```
+
+`dune exec test/test.exe` does **not** work: the test reads `test.yaml` relative to the
+current directory, and dune runs the executable from the project root rather than from
+`_build/default/test`. Use `dune runtest`, or `cd _build/default/test && ./test.exe`.
+
+Dune's dev profile turns warnings into errors (e.g. an unused variable fails the build).
+
+## Architecture
+
+Reading is a pipeline of four stages, each a section of `src/yaml.ml`:
+
+1. **Scan** (`scan`, `strip_comment`) — splits the input into a `line array` of
+   non-blank, comment-free lines carrying their indentation and source line number.
+   Comment stripping is quote-aware, so `#` inside a quoted scalar survives.
+   `strip_document_markers` then handles `---` / `...`.
+2. **Block structure** (`parse`) — recursive descent over that array driven by
+   indentation, with a mutable `pos`.
+3. **Single line** (`parse_inline`) — everything after a `key:` or a `-`.
+4. **Flow** (`flow_value` / `flow_seq` / `flow_map` / `flow_key`) — `[…]` and `{…}`,
+   recursive descent over one string with an index.
+
+Writing is `write` (block structure) on top of `render_scalar` / `plain_safe` / `quote`.
+
+### Things to know before changing the parser
+
+- **`src/yaml.mli` is the spec.** It documents the supported subset and the round-trip
+  guarantee; `yaml.ml` has no module header comment and just points at it. If you change
+  what is supported, update the `.mli`.
+
+- **`of_string (to_string v) = Ok v` holds for every `v` and must keep holding.** It rests
+  on a symmetry between two functions that have to be edited together: `resolve` (plain
+  scalar text → `t`) and `plain_safe` (may this string be printed without quotes?).
+  `plain_safe s` requires, among other things, that `resolve s` gives back `String s`, so
+  a string that would be re-read as a number, a bool or null is quoted on output, and
+  quoted scalars never go through `resolve` on input. Any change here needs a new case in
+  the `roundtrip` list in `test/test.ml`.
+
+- **Sequence items rewrite their own line.** In `parse`'s `seq`, a non-empty dash line has
+  its `indent` and `content` mutated in place to what follows the dash, and is then parsed
+  as an ordinary node at that column. This is why `- 5`, `- a: 1` with further entries
+  below, and `- - 1` all work without a special case each. Don't add a separate code path
+  for compact entries; the mutable fields on `line` exist for this.
+
+- **Flow collections live on one line.** The scanner is line-based, so a `[` that is never
+  closed on its line is an "unterminated flow sequence" error by construction. Supporting
+  multi-line flow means changing stage 1, not stage 4.
+
+- **`is_number` is deliberate.** OCaml's `float_of_string` accepts `0x1p3`, `1_0`, `nan`
+  and `inf`, none of which are YAML numbers, so `resolve` only calls it after
+  `is_number` confirms a decimal literal. `0x10` is a `String`.
+
+- **Errors** use the internal `Parse_error` exception raised through
+  `error lnum "…"` (a `Printf` format). It is caught only in `of_string`, which turns it
+  into `Error "line N: …"`. It must not escape the module.
+
+- Unsupported YAML (`|`, `>`, `&`, `*`, `!`, `%`, complex keys, multiple documents, tabs
+  for indentation) is rejected explicitly rather than misparsed — see `check_unsupported`.
+
+## Tests
+
+`test/test.ml` is one executable of plain assertions, no test framework. Helpers:
+`ok src expected` (parses to), `err src` (must be rejected), `roundtrip v` (prints and
+re-parses to itself). Add cases to the relevant group rather than creating new files.
+
+`test/test.yaml` is an example document exercising the whole supported subset. It is
+declared as a `(deps …)` in `test/dune` and read relative to the current directory. The
+test currently only prints it back; it is a smoke test, not an assertion.
