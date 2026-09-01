@@ -100,6 +100,10 @@ dune build
 dune runtest
 ```
 
+## Tool disclosure
+
+Most of the project was generated with Claude code (Opus 5).
+
 ## License
 
 MiniYaml is distributed under the GNU General Public License version 3, see
