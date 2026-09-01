@@ -1,0 +1,12 @@
+(executable
+ (name test)
+ (libraries yaml)
+)
+
+(rule
+ (alias runtest)
+ (deps test.yaml)
+ (action
+  (run ./test.exe %{deps})
+ )
+)
