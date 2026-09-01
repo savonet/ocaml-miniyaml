@@ -207,7 +207,13 @@ let () =
   if printed <> expected then
     fail "printing:\n  expected %S\n  got      %S" expected printed;
 
-  if !failures = 0 then print_string "all tests passed\n"
+  if !failures = 0 then print_string "All tests passed\n\n"
   else (
     Printf.printf "%d failure(s)\n" !failures;
     exit 1)
+
+let () =
+  List.iter (fun f ->
+      Printf.printf "Parsing %s...\n\n%!" f;
+      Printf.printf "%s\n%!" @@ Yaml.to_string @@ Result.get_ok @@ Yaml.of_string f
+    ) (List.tl @@ Array.to_list @@ Sys.argv)

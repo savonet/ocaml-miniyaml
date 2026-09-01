@@ -1,3 +1,8 @@
 (test
  (name test)
- (libraries yaml))
+ (libraries yaml)
+ (deps test.yaml)
+ (action
+  (run ./test.exe %{deps})
+ )
+)
