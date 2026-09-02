@@ -21,10 +21,15 @@ type t =
     which the error was detected. *)
 val of_string : string -> (t, string) result
 
-(** Parse a YAML file. *)
+(** Parse the YAML document contained in a file. Raises [Sys_error] if the file
+    cannot be read. *)
 val of_file : string -> (t, string) result
 
 (** Print a YAML document, using block style and two-space indentation. The
     result always ends with a newline and can be read back with {!of_string}:
     [of_string (to_string v) = Ok v] for every [v]. *)
 val to_string : t -> string
+
+(** Write a YAML document to a file, as printed by {!to_string}. Raises
+    [Sys_error] if the file cannot be written. *)
+val to_file : string -> t -> unit

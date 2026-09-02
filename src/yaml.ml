@@ -634,3 +634,8 @@ let to_string yaml =
   let b = Buffer.create 256 in
   write b 0 yaml;
   Buffer.contents b
+
+let to_file f yaml =
+  let oc = open_out_bin f in
+  output_string oc (to_string yaml);
+  close_out oc
