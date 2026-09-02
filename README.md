@@ -1,5 +1,10 @@
 # MiniYaml — A simple YAML parser in pure OCaml
 
+> [!WARNING]
+> This repository is read-only. All changes must be made in
+> [savonet/liquidsoap](https://github.com/savonet/liquidsoap) under
+> `src/modules/synced/miniyaml/` and will be mirrored here automatically.
+
 MiniYaml reads and writes the subset of YAML that people actually hand-write in
 configuration files: block mappings and sequences, inline flow collections, quoted
 scalars and comments.
@@ -91,7 +96,7 @@ quoted on output, so `String "true"`, `String "1.5"` and `String ""` survive the
 - comments, and the `---` / `...` document markers;
 - the plain scalars `~`, `null`, `true`, `false`, `.inf`, `.nan` and decimal numbers.
 
-The following are *not* supported, and are rejected with an explicit error rather than misparsed: block scalars (`|` and `>`), anchors and aliases (`&`, `*`), tags (`!`), directives (`%`), complex mapping keys (`?`), multi-document streams, and tabulations used for indentation. Flow collections have to fit on a single line.
+The following are _not_ supported, and are rejected with an explicit error rather than misparsed: block scalars (`|` and `>`), anchors and aliases (`&`, `*`), tags (`!`), directives (`%`), complex mapping keys (`?`), multi-document streams, and tabulations used for indentation. Flow collections have to fit on a single line.
 
 ## Building
 

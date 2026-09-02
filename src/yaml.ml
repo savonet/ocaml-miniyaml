@@ -57,10 +57,10 @@ let read_hex lnum s i count =
     if !i >= n then error lnum "truncated unicode escape sequence";
     let d =
       match s.[!i] with
-      | '0' .. '9' as c -> Char.code c - Char.code '0'
-      | 'a' .. 'f' as c -> Char.code c - Char.code 'a' + 10
-      | 'A' .. 'F' as c -> Char.code c - Char.code 'A' + 10
-      | c -> error lnum "invalid hexadecimal digit %C" c
+        | '0' .. '9' as c -> Char.code c - Char.code '0'
+        | 'a' .. 'f' as c -> Char.code c - Char.code 'a' + 10
+        | 'A' .. 'F' as c -> Char.code c - Char.code 'A' + 10
+        | c -> error lnum "invalid hexadecimal digit %C" c
     in
     v := (!v * 16) + d;
     incr i
@@ -76,37 +76,37 @@ let read_double lnum s i =
   while not !stop do
     if !i >= n then error lnum "unterminated double-quoted string";
     match s.[!i] with
-    | '"' ->
-      incr i;
-      stop := true
-    | '\\' ->
-      incr i;
-      if !i >= n then error lnum "unterminated escape sequence";
-      let e = s.[!i] in
-      incr i;
-      (match e with
-      | 'n' -> Buffer.add_char b '\n'
-      | 't' -> Buffer.add_char b '\t'
-      | 'r' -> Buffer.add_char b '\r'
-      | 'b' -> Buffer.add_char b '\b'
-      | 'f' -> Buffer.add_char b '\012'
-      | 'v' -> Buffer.add_char b '\011'
-      | 'a' -> Buffer.add_char b '\007'
-      | 'e' -> Buffer.add_char b '\027'
-      | '0' -> Buffer.add_char b '\000'
-      | '\\' -> Buffer.add_char b '\\'
-      | '"' -> Buffer.add_char b '"'
-      | '/' -> Buffer.add_char b '/'
-      | ' ' -> Buffer.add_char b ' '
-      | 'x' | 'u' | 'U' ->
-        let count = match e with 'x' -> 2 | 'u' -> 4 | _ -> 8 in
-        let cp = read_hex lnum s i count in
-        if cp > 0x10ffff then error lnum "invalid unicode code point";
-        add_utf8 b cp
-      | c -> error lnum "invalid escape sequence \\%c" c)
-    | c ->
-      Buffer.add_char b c;
-      incr i
+      | '"' ->
+          incr i;
+          stop := true
+      | '\\' -> (
+          incr i;
+          if !i >= n then error lnum "unterminated escape sequence";
+          let e = s.[!i] in
+          incr i;
+          match e with
+            | 'n' -> Buffer.add_char b '\n'
+            | 't' -> Buffer.add_char b '\t'
+            | 'r' -> Buffer.add_char b '\r'
+            | 'b' -> Buffer.add_char b '\b'
+            | 'f' -> Buffer.add_char b '\012'
+            | 'v' -> Buffer.add_char b '\011'
+            | 'a' -> Buffer.add_char b '\007'
+            | 'e' -> Buffer.add_char b '\027'
+            | '0' -> Buffer.add_char b '\000'
+            | '\\' -> Buffer.add_char b '\\'
+            | '"' -> Buffer.add_char b '"'
+            | '/' -> Buffer.add_char b '/'
+            | ' ' -> Buffer.add_char b ' '
+            | 'x' | 'u' | 'U' ->
+                let count = match e with 'x' -> 2 | 'u' -> 4 | _ -> 8 in
+                let cp = read_hex lnum s i count in
+                if cp > 0x10ffff then error lnum "invalid unicode code point";
+                add_utf8 b cp
+            | c -> error lnum "invalid escape sequence \\%c" c)
+      | c ->
+          Buffer.add_char b c;
+          incr i
   done;
   Buffer.contents b
 
@@ -166,27 +166,27 @@ let is_number s =
 (** Type of a plain (unquoted) scalar. *)
 let resolve s =
   match s with
-  | "" | "~" | "null" | "Null" | "NULL" -> Null
-  | "true" | "True" | "TRUE" -> Bool true
-  | "false" | "False" | "FALSE" -> Bool false
-  | ".inf" | ".Inf" | ".INF" | "+.inf" | "+.Inf" | "+.INF" -> Float infinity
-  | "-.inf" | "-.Inf" | "-.INF" -> Float neg_infinity
-  | ".nan" | ".NaN" | ".NAN" -> Float nan
-  | _ -> if is_number s then Float (float_of_string s) else String s
+    | "" | "~" | "null" | "Null" | "NULL" -> Null
+    | "true" | "True" | "TRUE" -> Bool true
+    | "false" | "False" | "FALSE" -> Bool false
+    | ".inf" | ".Inf" | ".INF" | "+.inf" | "+.Inf" | "+.INF" -> Float infinity
+    | "-.inf" | "-.Inf" | "-.INF" -> Float neg_infinity
+    | ".nan" | ".NaN" | ".NAN" -> Float nan
+    | _ -> if is_number s then Float (float_of_string s) else String s
 
 (** Reject the YAML features we do not implement. *)
 let check_unsupported lnum s =
-  if s <> "" then
+  if s <> "" then (
     match s.[0] with
-    | '|' | '>' -> error lnum "block scalars are not supported"
-    | '&' -> error lnum "anchors are not supported"
-    | '*' -> error lnum "aliases are not supported"
-    | '!' -> error lnum "tags are not supported"
-    | '%' -> error lnum "directives are not supported"
-    | '@' | '`' -> error lnum "%C is a reserved indicator" s.[0]
-    | '?' when String.length s = 1 || s.[1] = ' ' ->
-      error lnum "complex mapping keys are not supported"
-    | _ -> ()
+      | '|' | '>' -> error lnum "block scalars are not supported"
+      | '&' -> error lnum "anchors are not supported"
+      | '*' -> error lnum "aliases are not supported"
+      | '!' -> error lnum "tags are not supported"
+      | '%' -> error lnum "directives are not supported"
+      | '@' | '`' -> error lnum "%C is a reserved indicator" s.[0]
+      | '?' when String.length s = 1 || s.[1] = ' ' ->
+          error lnum "complex mapping keys are not supported"
+      | _ -> ())
 
 (* {1 Flow collections} *)
 
@@ -213,19 +213,19 @@ let rec flow_value lnum s i =
   skip_blanks s i;
   if !i >= String.length s then error lnum "unexpected end of flow collection";
   match s.[!i] with
-  | '[' ->
-    incr i;
-    flow_seq lnum s i
-  | '{' ->
-    incr i;
-    flow_map lnum s i
-  | '"' -> String (read_double lnum s i)
-  | '\'' -> String (read_single lnum s i)
-  | c ->
-    let raw = read_plain s i in
-    if raw = "" then error lnum "unexpected %C in flow collection" c;
-    check_unsupported lnum raw;
-    resolve raw
+    | '[' ->
+        incr i;
+        flow_seq lnum s i
+    | '{' ->
+        incr i;
+        flow_map lnum s i
+    | '"' -> String (read_double lnum s i)
+    | '\'' -> String (read_single lnum s i)
+    | c ->
+        let raw = read_plain s i in
+        if raw = "" then error lnum "unexpected %C in flow collection" c;
+        check_unsupported lnum raw;
+        resolve raw
 
 and flow_seq lnum s i =
   let n = String.length s in
@@ -240,16 +240,16 @@ and flow_seq lnum s i =
     skip_blanks s i;
     if !i >= n then error lnum "unterminated flow sequence";
     match s.[!i] with
-    | ']' ->
-      incr i;
-      stop := true
-    | ',' ->
-      incr i;
-      skip_blanks s i;
-      if !i < n && s.[!i] = ']' then (
-        incr i;
-        stop := true)
-    | c -> error lnum "unexpected %C in flow sequence" c
+      | ']' ->
+          incr i;
+          stop := true
+      | ',' ->
+          incr i;
+          skip_blanks s i;
+          if !i < n && s.[!i] = ']' then (
+            incr i;
+            stop := true)
+      | c -> error lnum "unexpected %C in flow sequence" c
   done;
   List (List.rev !items)
 
@@ -277,16 +277,16 @@ and flow_map lnum s i =
     skip_blanks s i;
     if !i >= n then error lnum "unterminated flow mapping";
     match s.[!i] with
-    | '}' ->
-      incr i;
-      stop := true
-    | ',' ->
-      incr i;
-      skip_blanks s i;
-      if !i < n && s.[!i] = '}' then (
-        incr i;
-        stop := true)
-    | c -> error lnum "unexpected %C in flow mapping" c
+      | '}' ->
+          incr i;
+          stop := true
+      | ',' ->
+          incr i;
+          skip_blanks s i;
+          if !i < n && s.[!i] = '}' then (
+            incr i;
+            stop := true)
+      | c -> error lnum "unexpected %C in flow mapping" c
   done;
   Assoc (List.rev !items)
 
@@ -294,14 +294,14 @@ and flow_key lnum s i =
   skip_blanks s i;
   if !i >= String.length s then error lnum "unterminated flow mapping";
   match s.[!i] with
-  | '"' -> read_double lnum s i
-  | '\'' -> read_single lnum s i
-  | '[' | '{' -> error lnum "only scalar mapping keys are supported"
-  | _ ->
-    let raw = read_plain s i in
-    if raw = "" then error lnum "empty mapping key";
-    check_unsupported lnum raw;
-    raw
+    | '"' -> read_double lnum s i
+    | '\'' -> read_single lnum s i
+    | '[' | '{' -> error lnum "only scalar mapping keys are supported"
+    | _ ->
+        let raw = read_plain s i in
+        if raw = "" then error lnum "empty mapping key";
+        check_unsupported lnum raw;
+        raw
 
 (* {1 Lines} *)
 
@@ -363,11 +363,11 @@ let strip_document_markers lines =
   let rec take acc = function
     | [] -> List.rev acc
     | l :: rest when is_marker "..." l -> (
-      match rest with
-      | [] -> List.rev acc
-      | l :: _ -> error l.lnum "content after the end of the document")
+        match rest with
+          | [] -> List.rev acc
+          | l :: _ -> error l.lnum "content after the end of the document")
     | l :: _ when is_marker "---" l ->
-      error l.lnum "multiple documents are not supported"
+        error l.lnum "multiple documents are not supported"
     | l :: rest -> take (l :: acc) rest
   in
   Array.of_list (take [] lines)
@@ -395,11 +395,12 @@ let key_sep s =
       incr i)
     else (
       (match c with
-      | '"' | '\'' -> quote := c
-      | '[' | '{' -> incr depth
-      | ']' | '}' -> decr depth
-      | ':' when !depth = 0 && (!i + 1 >= n || s.[!i + 1] = ' ') -> res := Some !i
-      | _ -> ());
+        | '"' | '\'' -> quote := c
+        | '[' | '{' -> incr depth
+        | ']' | '}' -> decr depth
+        | ':' when !depth = 0 && (!i + 1 >= n || s.[!i + 1] = ' ') ->
+            res := Some !i
+        | _ -> ());
       incr i)
   done;
   !res
@@ -414,14 +415,14 @@ let parse_key lnum k =
     v
   in
   match k.[0] with
-  | '"' ->
-    let i = ref 0 in
-    consumed (read_double lnum k i) i
-  | '\'' ->
-    let i = ref 0 in
-    consumed (read_single lnum k i) i
-  | '[' | '{' -> error lnum "only scalar mapping keys are supported"
-  | _ -> k
+    | '"' ->
+        let i = ref 0 in
+        consumed (read_double lnum k i) i
+    | '\'' ->
+        let i = ref 0 in
+        consumed (read_single lnum k i) i
+    | '[' | '{' -> error lnum "only scalar mapping keys are supported"
+    | _ -> k
 
 (** Parse a value written on a single line. *)
 let parse_inline lnum s =
@@ -433,18 +434,18 @@ let parse_inline lnum s =
     v
   in
   if s = "" then Null
-  else
+  else (
     match s.[0] with
-    | '[' | '{' ->
-      let i = ref 0 in
-      consumed (flow_value lnum s i) i
-    | '"' ->
-      let i = ref 0 in
-      consumed (String (read_double lnum s i)) i
-    | '\'' ->
-      let i = ref 0 in
-      consumed (String (read_single lnum s i)) i
-    | _ -> resolve s
+      | '[' | '{' ->
+          let i = ref 0 in
+          consumed (flow_value lnum s i) i
+      | '"' ->
+          let i = ref 0 in
+          consumed (String (read_double lnum s i)) i
+      | '\'' ->
+          let i = ref 0 in
+          consumed (String (read_single lnum s i)) i
+      | _ -> resolve s)
 
 let parse lines =
   let len = Array.length lines in
@@ -452,17 +453,17 @@ let parse lines =
   (* Parse the block of lines at indentation [indent]. *)
   let rec node indent =
     if !pos >= len then Null
-    else
+    else (
       let l = lines.(!pos) in
       if l.indent < indent then Null
       else if l.indent > indent then error l.lnum "unexpected indentation"
       else if is_dash l.content then seq indent
-      else
+      else (
         match key_sep l.content with
-        | Some _ -> map indent
-        | None ->
-          incr pos;
-          parse_inline l.lnum l.content
+          | Some _ -> map indent
+          | None ->
+              incr pos;
+              parse_inline l.lnum l.content))
   (* Parse the block nested under a line at indentation [indent]. *)
   and child indent =
     if !pos < len && lines.(!pos).indent > indent then node lines.(!pos).indent
@@ -501,23 +502,23 @@ let parse lines =
       if is_dash l.content then
         error l.lnum "unexpected sequence entry in a mapping";
       match key_sep l.content with
-      | None -> error l.lnum "expected a mapping entry"
-      | Some k ->
-        let key = parse_key l.lnum (String.sub l.content 0 k) in
-        let n = String.length l.content in
-        let rest = String.trim (String.sub l.content (k + 1) (n - k - 1)) in
-        incr pos;
-        let v =
-          if rest <> "" then parse_inline l.lnum rest
-          else if
-            (* A sequence may be written at the indentation of its key. *)
-            !pos < len
-            && lines.(!pos).indent = indent
-            && is_dash lines.(!pos).content
-          then seq indent
-          else child indent
-        in
-        items := (key, v) :: !items
+        | None -> error l.lnum "expected a mapping entry"
+        | Some k ->
+            let key = parse_key l.lnum (String.sub l.content 0 k) in
+            let n = String.length l.content in
+            let rest = String.trim (String.sub l.content (k + 1) (n - k - 1)) in
+            incr pos;
+            let v =
+              if rest <> "" then parse_inline l.lnum rest
+              else if
+                (* A sequence may be written at the indentation of its key. *)
+                !pos < len
+                && lines.(!pos).indent = indent
+                && is_dash lines.(!pos).content
+              then seq indent
+              else child indent
+            in
+            items := (key, v) :: !items
     done;
     Assoc (List.rev !items)
   in
@@ -542,9 +543,9 @@ let float_to_string f =
   else if f = Float.infinity then ".inf"
   else if f = Float.neg_infinity then "-.inf"
   else if Float.is_integer f && Float.abs f < 1e16 then Printf.sprintf "%.0f" f
-  else
+  else (
     let s = Printf.sprintf "%.15g" f in
-    if float_of_string s = f then s else Printf.sprintf "%.17g" f
+    if float_of_string s = f then s else Printf.sprintf "%.17g" f)
 
 (** Whether [s] can be printed without quotes and read back identically. *)
 let plain_safe s =
@@ -555,11 +556,11 @@ let plain_safe s =
   && (not (is_blank s.[0]))
   && (not (is_blank s.[n - 1]))
   && (match s.[0] with
-     | ',' | '[' | ']' | '{' | '}' | '#' | '&' | '*' | '!' | '|' | '>' | '\''
-     | '"' | '%' | '@' | '`' ->
-       false
-     | '-' | '?' | ':' -> n > 1 && s.[1] <> ' '
-     | _ -> true)
+    | ',' | '[' | ']' | '{' | '}' | '#' | '&' | '*' | '!' | '|' | '>' | '\''
+    | '"' | '%' | '@' | '`' ->
+        false
+    | '-' | '?' | ':' -> n > 1 && s.[1] <> ' '
+    | _ -> true)
   &&
   let ok = ref true in
   String.iteri
@@ -576,14 +577,14 @@ let quote s =
   String.iter
     (fun c ->
       match c with
-      | '"' -> Buffer.add_string b "\\\""
-      | '\\' -> Buffer.add_string b "\\\\"
-      | '\n' -> Buffer.add_string b "\\n"
-      | '\t' -> Buffer.add_string b "\\t"
-      | '\r' -> Buffer.add_string b "\\r"
-      | c when c < ' ' || c = '\127' ->
-        Buffer.add_string b (Printf.sprintf "\\x%02x" (Char.code c))
-      | c -> Buffer.add_char b c)
+        | '"' -> Buffer.add_string b "\\\""
+        | '\\' -> Buffer.add_string b "\\\\"
+        | '\n' -> Buffer.add_string b "\\n"
+        | '\t' -> Buffer.add_string b "\\t"
+        | '\r' -> Buffer.add_string b "\\r"
+        | c when c < ' ' || c = '\127' ->
+            Buffer.add_string b (Printf.sprintf "\\x%02x" (Char.code c))
+        | c -> Buffer.add_char b c)
     s;
   Buffer.add_char b '"';
   Buffer.contents b
@@ -592,43 +593,43 @@ let render_string s = if plain_safe s then s else quote s
 
 let render_scalar v =
   match v with
-  | Null -> "null"
-  | Bool b -> if b then "true" else "false"
-  | Float f -> float_to_string f
-  | String s -> render_string s
-  | List [] -> "[]"
-  | Assoc [] -> "{}"
-  | List _ | Assoc _ -> assert false
+    | Null -> "null"
+    | Bool b -> if b then "true" else "false"
+    | Float f -> float_to_string f
+    | String s -> render_string s
+    | List [] -> "[]"
+    | Assoc [] -> "{}"
+    | List _ | Assoc _ -> assert false
 
 (** Print [v] at indentation [indent], assuming the prefix of its first line is
     already printed. Always ends with a newline. *)
 let rec write b indent v =
   match v with
-  | List (_ :: _ as items) ->
-    List.iteri
-      (fun i x ->
-        if i > 0 then Buffer.add_string b (String.make indent ' ');
-        Buffer.add_string b "- ";
-        write b (indent + 2) x)
-      items
-  | Assoc (_ :: _ as items) ->
-    List.iteri
-      (fun i (k, x) ->
-        if i > 0 then Buffer.add_string b (String.make indent ' ');
-        Buffer.add_string b (render_string k);
-        Buffer.add_char b ':';
-        match x with
-        | List (_ :: _) | Assoc (_ :: _) ->
-          Buffer.add_char b '\n';
-          Buffer.add_string b (String.make (indent + 2) ' ');
-          write b (indent + 2) x
-        | _ ->
-          Buffer.add_char b ' ';
-          write b (indent + 2) x)
-      items
-  | v ->
-    Buffer.add_string b (render_scalar v);
-    Buffer.add_char b '\n'
+    | List (_ :: _ as items) ->
+        List.iteri
+          (fun i x ->
+            if i > 0 then Buffer.add_string b (String.make indent ' ');
+            Buffer.add_string b "- ";
+            write b (indent + 2) x)
+          items
+    | Assoc (_ :: _ as items) ->
+        List.iteri
+          (fun i (k, x) ->
+            if i > 0 then Buffer.add_string b (String.make indent ' ');
+            Buffer.add_string b (render_string k);
+            Buffer.add_char b ':';
+            match x with
+              | List (_ :: _) | Assoc (_ :: _) ->
+                  Buffer.add_char b '\n';
+                  Buffer.add_string b (String.make (indent + 2) ' ');
+                  write b (indent + 2) x
+              | _ ->
+                  Buffer.add_char b ' ';
+                  write b (indent + 2) x)
+          items
+    | v ->
+        Buffer.add_string b (render_scalar v);
+        Buffer.add_char b '\n'
 
 let to_string yaml =
   let b = Buffer.create 256 in

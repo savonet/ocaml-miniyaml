@@ -10,12 +10,11 @@ license: "GPL-3.0-or-later"
 homepage: "https://github.com/savonet/ocaml-miniyaml"
 bug-reports: "https://github.com/savonet/ocaml-miniyaml/issues"
 depends: [
-  "dune" {>= "3.14"}
+  "dune" {>= "3.23"}
   "ocaml" {>= "4.08"}
   "odoc" {with-doc}
 ]
 build: [
-  ["dune" "subst"] {dev}
   [
     "dune"
     "build"
@@ -29,3 +28,4 @@ build: [
   ]
 ]
 dev-repo: "git+https://github.com/savonet/ocaml-miniyaml.git"
+x-maintenance-intent: ["(latest)"]

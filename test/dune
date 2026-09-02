@@ -1,5 +1,9 @@
-(test
+(executable
  (name test)
- (libraries yaml)
+ (libraries yaml))
+
+(rule
+ (alias citest)
  (deps test.yaml)
-)
+ (action
+  (run ./test.exe)))
