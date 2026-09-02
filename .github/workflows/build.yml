@@ -5,7 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - name: Install required packages
       run: sudo apt-get -y install ocaml ocaml-dune ocaml-odoc
     - name: Build
@@ -15,7 +15,7 @@ jobs:
     - name: Build doc
       run: dune build @doc
     - name: Upload website artifact
-      uses: actions/upload-pages-artifact@v3
+      uses: actions/upload-pages-artifact@v5
       with:
         path: _build/default/_doc/_html
   deploy:
@@ -30,4 +30,4 @@ jobs:
     steps:
       - name: Deploy website
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
