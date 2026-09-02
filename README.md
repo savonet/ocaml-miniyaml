@@ -53,7 +53,7 @@ server:
 Values are built and inspected directly:
 
 ```ocaml
-Yaml.to_string (Map [ "ports", Seq [ Float 80.; Float 443. ] ])
+Yaml.to_string (Assoc [ "ports", List [ Float 80.; Float 443. ] ])
 (* "ports:\n  - 80\n  - 443\n" *)
 ```
 
@@ -65,14 +65,14 @@ type t =
   | Bool of bool
   | Float of float          (** any number, integers included *)
   | String of string
-  | Seq of t list
-  | Map of (string * t) list
+  | List of t list
+  | Assoc of (string * t) list
 
 val of_string : string -> (t, string) result
 val to_string : t -> string
 ```
 
-`Map` entries keep the order in which they occur, and duplicate keys are preserved.
+`Assoc` entries keep the order in which they occur, and duplicate keys are preserved.
 Errors are reported with the line at which they were detected, for instance
 `line 3: unexpected content`.
 

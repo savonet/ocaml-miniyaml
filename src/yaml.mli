@@ -12,8 +12,8 @@ type t =
   | Bool of bool
   | Float of float  (** any number, integers included *)
   | String of string
-  | Seq of t list  (** a sequence, e.g. [- 1] *)
-  | Map of (string * t) list
+  | List of t list  (** a sequence, e.g. [- 1] *)
+  | Assoc of (string * t) list
       (** a mapping, e.g. [a: 1]; entries are kept in the order they occur and
           duplicate keys are preserved *)
 

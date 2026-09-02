@@ -45,6 +45,12 @@ Reading is a pipeline of four stages, each a section of `src/yaml.ml`:
 
 Writing is `write` (block structure) on top of `render_scalar` / `plain_safe` / `quote`.
 
+The value type `t` has constructors `Null` / `Bool` / `Float` / `String` / `List` (a YAML
+sequence) / `Assoc` (a YAML mapping, an association list). Note the names: the collection
+constructors are `List` and `Assoc`, not `Seq` and `Map`, even though the code and the
+docs call the corresponding YAML syntax a sequence and a mapping (`flow_seq`, `flow_map`,
+`parse`'s `seq`).
+
 ### Things to know before changing the parser
 
 - **`src/yaml.mli` is the spec.** It documents the supported subset and the round-trip

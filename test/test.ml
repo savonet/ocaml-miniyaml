@@ -7,9 +7,9 @@ let rec show = function
   | Bool b -> Printf.sprintf "Bool %b" b
   | Float f -> Printf.sprintf "Float %h" f
   | String s -> Printf.sprintf "String %S" s
-  | Seq l -> "Seq [" ^ String.concat "; " (List.map show l) ^ "]"
-  | Map l ->
-    "Map ["
+  | List l -> "List [" ^ String.concat "; " (List.map show l) ^ "]"
+  | Assoc l ->
+    "Assoc ["
     ^ String.concat "; "
         (List.map (fun (k, v) -> Printf.sprintf "%S, %s" k (show v)) l)
     ^ "]"
@@ -66,59 +66,59 @@ let () =
       (match r with Ok v -> show v | Error e -> "error: " ^ e));
 
   (* Block mappings and sequences. *)
-  ok "a: 1\nb: 2\n" (Map [ ("a", Float 1.); ("b", Float 2.) ]);
-  ok "a:\n  b: 1\n  c: 2\n" (Map [ ("a", Map [ ("b", Float 1.); ("c", Float 2.) ]) ]);
-  ok "a:\n" (Map [ ("a", Null) ]);
-  ok "- 1\n- 2\n" (Seq [ Float 1.; Float 2. ]);
-  ok "a:\n  - 1\n  - 2\n" (Map [ ("a", Seq [ Float 1.; Float 2. ]) ]);
+  ok "a: 1\nb: 2\n" (Assoc [ ("a", Float 1.); ("b", Float 2.) ]);
+  ok "a:\n  b: 1\n  c: 2\n" (Assoc [ ("a", Assoc [ ("b", Float 1.); ("c", Float 2.) ]) ]);
+  ok "a:\n" (Assoc [ ("a", Null) ]);
+  ok "- 1\n- 2\n" (List [ Float 1.; Float 2. ]);
+  ok "a:\n  - 1\n  - 2\n" (Assoc [ ("a", List [ Float 1.; Float 2. ]) ]);
   (* A sequence may sit at the indentation of its key. *)
   ok "a:\n- 1\n- 2\nb: 3\n"
-    (Map [ ("a", Seq [ Float 1.; Float 2. ]); ("b", Float 3.) ]);
+    (Assoc [ ("a", List [ Float 1.; Float 2. ]); ("b", Float 3.) ]);
   (* Compact entries on the dash line. *)
   ok "- name: alice\n  admin: ~\n- name: bob\n"
-    (Seq
+    (List
        [
-         Map [ ("name", String "alice"); ("admin", Null) ];
-         Map [ ("name", String "bob") ];
+         Assoc [ ("name", String "alice"); ("admin", Null) ];
+         Assoc [ ("name", String "bob") ];
        ]);
-  ok "- - 1\n  - 2\n- 3\n" (Seq [ Seq [ Float 1.; Float 2. ]; Float 3. ]);
-  ok "-\n- 1\n" (Seq [ Null; Float 1. ]);
-  ok "- a:\n    b: 1\n" (Seq [ Map [ ("a", Map [ ("b", Float 1.) ]) ] ]);
+  ok "- - 1\n  - 2\n- 3\n" (List [ List [ Float 1.; Float 2. ]; Float 3. ]);
+  ok "-\n- 1\n" (List [ Null; Float 1. ]);
+  ok "- a:\n    b: 1\n" (List [ Assoc [ ("a", Assoc [ ("b", Float 1.) ]) ] ]);
 
   (* Flow collections. *)
-  ok "[1, 2]" (Seq [ Float 1.; Float 2. ]);
-  ok "[]" (Seq []);
-  ok "{}" (Map []);
-  ok "[1, ]" (Seq [ Float 1. ]);
+  ok "[1, 2]" (List [ Float 1.; Float 2. ]);
+  ok "[]" (List []);
+  ok "{}" (Assoc []);
+  ok "[1, ]" (List [ Float 1. ]);
   ok "{a: 1, b: [2, {c: 3}]}"
-    (Map
+    (Assoc
        [
          ("a", Float 1.);
-         ("b", Seq [ Float 2.; Map [ ("c", Float 3.) ] ]);
+         ("b", List [ Float 2.; Assoc [ ("c", Float 3.) ] ]);
        ]);
-  ok "{a}" (Map [ ("a", Null) ]);
-  ok "{a: }" (Map [ ("a", Null) ]);
-  ok "a: []\nb: {}\n" (Map [ ("a", Seq []); ("b", Map []) ]);
-  ok "a:\n  - [1, 2]\n" (Map [ ("a", Seq [ Seq [ Float 1.; Float 2. ] ]) ]);
-  ok "[a b, \"c, d\"]" (Seq [ String "a b"; String "c, d" ]);
+  ok "{a}" (Assoc [ ("a", Null) ]);
+  ok "{a: }" (Assoc [ ("a", Null) ]);
+  ok "a: []\nb: {}\n" (Assoc [ ("a", List []); ("b", Assoc []) ]);
+  ok "a:\n  - [1, 2]\n" (Assoc [ ("a", List [ List [ Float 1.; Float 2. ] ]) ]);
+  ok "[a b, \"c, d\"]" (List [ String "a b"; String "c, d" ]);
 
   (* Quoting. *)
-  ok "a: \"x\\ny\"" (Map [ ("a", String "x\ny") ]);
-  ok "a: 'it''s'" (Map [ ("a", String "it's") ]);
-  ok "a: \"local#host\"" (Map [ ("a", String "local#host") ]);
-  ok "a: \"\\u00e9\\u20ac\"" (Map [ ("a", String "\xc3\xa9\xe2\x82\xac") ]);
-  ok "a: \"1\"" (Map [ ("a", String "1") ]);
-  ok "a: '~'" (Map [ ("a", String "~") ]);
-  ok "\"a b\": 1" (Map [ ("a b", Float 1.) ]);
-  ok "a: b:c" (Map [ ("a", String "b:c") ]);
+  ok "a: \"x\\ny\"" (Assoc [ ("a", String "x\ny") ]);
+  ok "a: 'it''s'" (Assoc [ ("a", String "it's") ]);
+  ok "a: \"local#host\"" (Assoc [ ("a", String "local#host") ]);
+  ok "a: \"\\u00e9\\u20ac\"" (Assoc [ ("a", String "\xc3\xa9\xe2\x82\xac") ]);
+  ok "a: \"1\"" (Assoc [ ("a", String "1") ]);
+  ok "a: '~'" (Assoc [ ("a", String "~") ]);
+  ok "\"a b\": 1" (Assoc [ ("a b", Float 1.) ]);
+  ok "a: b:c" (Assoc [ ("a", String "b:c") ]);
 
   (* Comments, blank lines and document markers. *)
-  ok "# top\na: 1 # trailing\n\n\nb: 2\n" (Map [ ("a", Float 1.); ("b", Float 2.) ]);
-  ok "a: '# not a comment'" (Map [ ("a", String "# not a comment") ]);
-  ok "---\na: 1\n" (Map [ ("a", Float 1.) ]);
-  ok "---\na: 1\n...\n" (Map [ ("a", Float 1.) ]);
+  ok "# top\na: 1 # trailing\n\n\nb: 2\n" (Assoc [ ("a", Float 1.); ("b", Float 2.) ]);
+  ok "a: '# not a comment'" (Assoc [ ("a", String "# not a comment") ]);
+  ok "---\na: 1\n" (Assoc [ ("a", Float 1.) ]);
+  ok "---\na: 1\n...\n" (Assoc [ ("a", Float 1.) ]);
   ok "# only a comment\n" Null;
-  ok "a: 1\r\nb: 2\r\n" (Map [ ("a", Float 1.); ("b", Float 2.) ]);
+  ok "a: 1\r\nb: 2\r\n" (Assoc [ ("a", Float 1.); ("b", Float 2.) ]);
 
   (* Errors. *)
   err "\ta: 1";
@@ -170,25 +170,25 @@ let () =
       String "---";
       String "...";
       String "héllo";
-      Seq [];
-      Map [];
-      Seq [ Null; Bool true; String "x" ];
-      Map [ ("", Null); ("a b", Seq []); ("null", Map []) ];
-      Seq [ Seq [ Float 1.; Seq [] ]; Map [ ("a", Seq [ Map [ ("b", Null) ] ]) ] ];
-      Map
+      List [];
+      Assoc [];
+      List [ Null; Bool true; String "x" ];
+      Assoc [ ("", Null); ("a b", List []); ("null", Assoc []) ];
+      List [ List [ Float 1.; List [] ]; Assoc [ ("a", List [ Assoc [ ("b", Null) ] ]) ] ];
+      Assoc
         [
           ( "server",
-            Map
+            Assoc
               [
                 ("host", String "local#host");
-                ("ports", Seq [ Float 80.; Float 443. ]);
-                ("opts", Map [ ("tls", Bool true) ]);
+                ("ports", List [ Float 80.; Float 443. ]);
+                ("opts", Assoc [ ("tls", Bool true) ]);
               ] );
           ( "users",
-            Seq
+            List
               [
-                Map [ ("name", String "alice"); ("admin", Null) ];
-                Map [ ("name", String "bob") ];
+                Assoc [ ("name", String "alice"); ("admin", Null) ];
+                Assoc [ ("name", String "bob") ];
               ] );
         ];
     ];
@@ -196,11 +196,11 @@ let () =
   (* Printing looks like idiomatic YAML. *)
   let printed =
     to_string
-      (Map
+      (Assoc
          [
            ("a", Float 1.);
-           ("b", Seq [ Float 1.; Map [ ("c", Float 2.); ("d", Float 3.) ] ]);
-           ("e", Map [ ("f", Seq []) ]);
+           ("b", List [ Float 1.; Assoc [ ("c", Float 2.); ("d", Float 3.) ] ]);
+           ("e", Assoc [ ("f", List []) ]);
          ])
   in
   let expected = "a: 1\nb:\n  - 1\n  - c: 2\n    d: 3\ne:\n  f: []\n" in

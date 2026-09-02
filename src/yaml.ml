@@ -5,8 +5,8 @@ type t =
   | Bool of bool
   | Float of float
   | String of string
-  | Seq of t list
-  | Map of (string * t) list
+  | List of t list
+  | Assoc of (string * t) list
 
 exception Parse_error of string
 
@@ -251,7 +251,7 @@ and flow_seq lnum s i =
         stop := true)
     | c -> error lnum "unexpected %C in flow sequence" c
   done;
-  Seq (List.rev !items)
+  List (List.rev !items)
 
 and flow_map lnum s i =
   let n = String.length s in
@@ -288,7 +288,7 @@ and flow_map lnum s i =
         stop := true)
     | c -> error lnum "unexpected %C in flow mapping" c
   done;
-  Map (List.rev !items)
+  Assoc (List.rev !items)
 
 and flow_key lnum s i =
   skip_blanks s i;
@@ -493,7 +493,7 @@ let parse lines =
       in
       items := v :: !items
     done;
-    Seq (List.rev !items)
+    List (List.rev !items)
   and map indent =
     let items = ref [] in
     while !pos < len && lines.(!pos).indent = indent do
@@ -519,7 +519,7 @@ let parse lines =
         in
         items := (key, v) :: !items
     done;
-    Map (List.rev !items)
+    Assoc (List.rev !items)
   in
   let v = if len = 0 then Null else node lines.(0).indent in
   if !pos < len then error lines.(!pos).lnum "unexpected content";
@@ -596,29 +596,29 @@ let render_scalar v =
   | Bool b -> if b then "true" else "false"
   | Float f -> float_to_string f
   | String s -> render_string s
-  | Seq [] -> "[]"
-  | Map [] -> "{}"
-  | Seq _ | Map _ -> assert false
+  | List [] -> "[]"
+  | Assoc [] -> "{}"
+  | List _ | Assoc _ -> assert false
 
 (** Print [v] at indentation [indent], assuming the prefix of its first line is
     already printed. Always ends with a newline. *)
 let rec write b indent v =
   match v with
-  | Seq (_ :: _ as items) ->
+  | List (_ :: _ as items) ->
     List.iteri
       (fun i x ->
         if i > 0 then Buffer.add_string b (String.make indent ' ');
         Buffer.add_string b "- ";
         write b (indent + 2) x)
       items
-  | Map (_ :: _ as items) ->
+  | Assoc (_ :: _ as items) ->
     List.iteri
       (fun i (k, x) ->
         if i > 0 then Buffer.add_string b (String.make indent ' ');
         Buffer.add_string b (render_string k);
         Buffer.add_char b ':';
         match x with
-        | Seq (_ :: _) | Map (_ :: _) ->
+        | List (_ :: _) | Assoc (_ :: _) ->
           Buffer.add_char b '\n';
           Buffer.add_string b (String.make (indent + 2) ' ');
           write b (indent + 2) x
